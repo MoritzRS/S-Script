@@ -27,6 +27,7 @@ export class Interpreter {
 			sin: (value) => Math.sin(value),
 			cos: (value) => Math.cos(value),
 			tan: (value) => Math.tan(value),
+			random: (min, max) => Math.random() * (max - min) + min,
 			PI: Math.PI,
 			E: Math.E,
 
@@ -91,6 +92,7 @@ export class Interpreter {
 
 			// String Functions
 			join: (separator, ...strings) => strings.join(separator),
+			split: (seperator, string) => string.split(seperator),
 
 			// Object Functions
 			get: (object, key) => object[key],

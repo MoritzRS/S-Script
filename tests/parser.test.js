@@ -62,6 +62,11 @@ suite("Parser", () => {
 				parser.parse("'test'");
 			}).toThrow();
 		});
+
+		it("Invalid Expressions", () => {
+			expect(() => parser.parse("(+ 1 2")).toThrow();
+			expect(() => parser.parse("(+ 1 2))")).toThrow();
+		});
 	});
 
 	describe("Complex Expressions", () => {

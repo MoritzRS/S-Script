@@ -181,7 +181,8 @@ export class Parser {
 		if (RULES.QUOTATION_MARK.test(current)) expression = this.parse_quote();
 		else if (RULES.LIST_OPEN.test(current)) expression = this.parse_list();
 		else if (RULES.STRING_DELIMITER.test(current)) expression = this.parse_string();
-		else expression = this.parse_atom();
+		else if (RULES.ATOM_CHARACTER.test(current)) expression = this.parse_atom();
+		else this.error("Unexpected character");
 
 		while (RULES.SPACE.test(this.peak())) this.consume();
 		return expression;

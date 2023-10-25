@@ -85,6 +85,14 @@ suite("Interpreter", () => {
 			expect(interpreter.evaluate(["tan", 2])).toBe(Math.tan(2));
 		});
 
+		it("[random]", () => {
+			for (let i = 0; i < 1000; i++) {
+				const result = interpreter.evaluate(["random", 5, 10]);
+				expect(result).toBeGreaterThanOrEqual(5);
+				expect(result).toBeLessThanOrEqual(10);
+			}
+		});
+
 		it("[PI]", () => {
 			expect(interpreter.evaluate("PI")).toBe(Math.PI);
 		});
@@ -255,6 +263,12 @@ suite("Interpreter", () => {
 					["quote", "World"],
 				]),
 			).toBe("Hello,World");
+		});
+
+		it("[split]", () => {
+			expect(
+				interpreter.evaluate(["split", ["quote", ","], ["quote", "1,2,3,4,5,6"]]),
+			).toStrictEqual(["1", "2", "3", "4", "5", "6"]);
 		});
 	});
 
