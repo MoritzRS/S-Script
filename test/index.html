@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Test</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+        }
+
+        #editor, #ast, #evaluation {
+            border: 1px solid black;
+        }
+
+        #editor {
+            flex: 1;
+        }
+
+        #results {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #ast {
+            flex: 3;
+            padding: 16px;
+            overflow-y: auto;
+            font-size: 16px;
+        }
+
+        #evaluation {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="editor"></div>
+    <div id="results">
+        <pre id="ast"></pre>
+        <pre id="evaluation"></pre>
+    </div>
+
+    <script type="module" src="./index.ts"></script>
+</body>
+</html>

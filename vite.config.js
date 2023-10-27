@@ -1,6 +1,7 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite";
 
 export default defineConfig({
+	root: "test",
 	test: {
 		coverage: {
 			enabled: true,

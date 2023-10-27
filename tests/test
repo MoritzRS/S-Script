@@ -1,6 +1,0 @@
-(function fac (x)
-    (if ((= x 1) x)
-        (true (* x (fac (- x 1))))
-    )
-)
-(fac 10)
