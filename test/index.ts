@@ -39,7 +39,7 @@ editor.addAction({
 					startLineNumber: e.line + 1,
 					endLineNumber: e.line + 1,
 					startColumn: e.column + 1,
-					endColumn: e.column + 1,
+					endColumn: e.column + 2,
 					message: e.message,
 					severity: monaco.MarkerSeverity.Error,
 				},
