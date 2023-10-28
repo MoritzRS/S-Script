@@ -6,14 +6,17 @@ export type TokenType =
 	| "value"
 
 	/** List calls (function calls) */
-	| "list";
+	| "list"
+
+	/** Comment */
+	| "comment";
 
 export class Token {
 	public start: [number, number, number];
 	public end: [number, number, number];
 	public raw: string;
 	public type: TokenType;
-	public value: unknown;
+	public value: unknown | Token[];
 
 	constructor({
 		start,
@@ -26,7 +29,7 @@ export class Token {
 		end: [number, number, number];
 		raw: string;
 		type: TokenType;
-		value: unknown;
+		value: unknown | Token[];
 	}) {
 		this.start = start;
 		this.end = end;

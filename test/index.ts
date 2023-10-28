@@ -1,3 +1,4 @@
+import "./worker";
 import * as monaco from "monaco-editor";
 import { Parser } from "../src/parser/parser";
 
@@ -11,6 +12,7 @@ const editor = monaco.editor.create(editorContainer, {
 	theme: "vs-dark",
 	fontSize: 24,
 	value: content,
+	automaticLayout: true,
 });
 
 editor.addAction({
@@ -39,9 +41,4 @@ editor.addAction({
 			astContainer.innerText = JSON.stringify(e);
 		}
 	},
-});
-
-window.addEventListener("resize", () => {
-	editor.layout({ width: 0, height: 0 });
-	editor.layout();
 });
