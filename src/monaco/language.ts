@@ -87,7 +87,7 @@ export const language = <monaco.languages.IMonarchLanguage>{
 			{ include: "@strings" },
 
 			[
-				/[a-zA-Z0-9\.@]+/,
+				/[^\(\)\"\'\s]+/,
 				{
 					cases: {
 						"@keywords": "keyword",
