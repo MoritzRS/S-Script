@@ -45,7 +45,25 @@ export class Scope {
 		if (this.constants.has(key)) return this.constants.get(key);
 		if (this.builtIns.has(key)) return this.builtIns.get(key);
 		if (this.parent) return this.parent.get(key);
-		return undefined;
+		throw `"${key}" is not defined`;
+	}
+
+	public isVariable(key: string) {
+		if (this.variables.has(key)) return true;
+		if (this.parent) return this.parent.isVariable(key);
+		return false;
+	}
+
+	public isConstant(key: string) {
+		if (this.constants.has(key)) return true;
+		if (this.parent) return this.parent.isConstant(key);
+		return false;
+	}
+
+	public isBuiltin(key: string) {
+		if (this.builtIns.has(key)) return true;
+		if (this.parent) return this.parent.isBuiltin(key);
+		return false;
 	}
 
 	public defineVariable(key: string, value?: unknown) {

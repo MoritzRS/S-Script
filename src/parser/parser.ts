@@ -14,7 +14,7 @@ export const RULES = {
 	QUOTATION_MARK: /^\'/,
 
 	/** Any character that is allowed in atoms */
-	ATOM_CHARACTER: /^[a-zA-Z0-9\.@]/,
+	ATOM_CHARACTER: /^[^\(\)\"\'\s]/,
 
 	/** Marks the Begin of a comment */
 	COMMENT_START: /^;/,

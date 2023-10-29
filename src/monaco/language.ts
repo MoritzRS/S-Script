@@ -1,5 +1,32 @@
 import * as monaco from "monaco-editor";
 
+const keywords = ["var", "const", "assign", "lambda", "if"];
+const constants = ["true", "false", "null", "undefined"];
+
+export const completion: monaco.languages.CompletionItemProvider = {
+	provideCompletionItems: (mode, position, context, token) => {
+		const suggestions: monaco.languages.CompletionItem[] = [
+			...keywords.map(
+				(e) =>
+					({
+						label: e,
+						kind: monaco.languages.CompletionItemKind.Keyword,
+						insertText: e,
+					} as any),
+			),
+			...constants.map(
+				(e) =>
+					({
+						label: e,
+						kind: monaco.languages.CompletionItemKind.Constant,
+						insertText: e,
+					} as any),
+			),
+		];
+		return { suggestions };
+	},
+};
+
 export const config: monaco.languages.LanguageConfiguration = {
 	comments: {
 		lineComment: ";",
@@ -38,10 +65,8 @@ export const language = <monaco.languages.IMonarchLanguage>{
 		// { open: "[", close: "]", token: "delimiter.square" },
 	],
 
-	keywords: [],
-
-	constants: ["true", "false", "null", "undefined"],
-
+	keywords,
+	constants,
 	operators: [],
 
 	digits: /\d+/,
