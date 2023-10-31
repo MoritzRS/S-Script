@@ -27,10 +27,41 @@ const editor = monaco.editor.create(editorContainer, {
 	automaticLayout: true,
 });
 
+let decorations = editor.createDecorationsCollection([]);
+const highlightTokens: Token[] = [];
+
+function decorate() {
+	decorations.clear();
+	const token = highlightTokens.at(-1);
+	if (!token) return;
+	decorations.set([
+		{
+			range: new monaco.Range(token.start[0], token.start[1], token.end[0], token.end[1]),
+			options: { inlineClassName: "selected-token" },
+		},
+	]);
+}
+
+function clearDecoration() {
+	while (highlightTokens.length) highlightTokens.pop();
+	decorate();
+}
+
+window.addEventListener("selectToken", ({ detail }: CustomEvent) => {
+	highlightTokens.push(detail);
+	decorate();
+});
+
+window.addEventListener("unselectToken", () => {
+	highlightTokens.pop();
+	decorate();
+});
+
 let timeout: ReturnType<typeof setTimeout>;
 let explorer: HTMLElement;
 editor.getModel().onDidChangeContent(() => {
 	clearTimeout(timeout);
+	clearDecoration();
 	timeout = setTimeout(() => {
 		const content = editor.getValue();
 		localStorage.setItem("monaco-content", content);
@@ -64,6 +95,7 @@ editor.addAction({
 	keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
 	run: function () {
 		clearTimeout(timeout);
+		clearDecoration();
 		const content = editor.getValue();
 		localStorage.setItem("monaco-content", content);
 		let ast: Token[];
@@ -108,28 +140,4 @@ editor.addAction({
 			evaluationContainer.innerText = JSON.stringify(e);
 		}
 	},
-});
-
-let decorations = editor.createDecorationsCollection([]);
-const highlightTokens: Token[] = [];
-
-function decorate() {
-	decorations.clear();
-	const token = highlightTokens.at(-1);
-	decorations.set([
-		{
-			range: new monaco.Range(token.start[0], token.start[1], token.end[0], token.end[1]),
-			options: { inlineClassName: "selected-token" },
-		},
-	]);
-}
-
-window.addEventListener("selectToken", ({ detail }: CustomEvent) => {
-	highlightTokens.push(detail);
-	decorate();
-});
-
-window.addEventListener("unselectToken", () => {
-	highlightTokens.pop();
-	decorate();
 });

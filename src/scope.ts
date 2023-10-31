@@ -1,3 +1,5 @@
+import { Token } from "./token";
+
 export class Scope {
 	public parent: Scope | undefined = undefined;
 
@@ -14,7 +16,7 @@ export class Scope {
 		parent?: Scope;
 		variables?: Record<string, unknown>;
 		constants?: Record<string, unknown>;
-		macros?: Record<string, Function>;
+		macros?: Record<string, (...tokens: Token[]) => unknown>;
 	}) {
 		if (parent) this.parent = parent;
 		if (variables) for (const key in variables) this.defineVariable(key, variables[key]);
@@ -76,7 +78,7 @@ export class Scope {
 		return value;
 	}
 
-	public defineMacro(key: string, value: Function) {
+	public defineMacro(key: string, value: (...token: Token[]) => unknown) {
 		if (this.constants.has(key)) throw `"${key}" is already defined`;
 		else if (this.variables.has(key)) throw `"${key}" is already defined`;
 		this.constants.set(key, value);

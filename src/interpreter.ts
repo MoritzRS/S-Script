@@ -32,8 +32,9 @@ export class Interpreter {
 			const [fn, ...args] = token.value as Token[];
 			const caller = this.evaluate(fn);
 			if (typeof caller !== "function") throw "Caller is not a function";
-			if (this.scope.isMacro(caller)) value = (caller as Function)(...args);
-			else value = (caller as Function)(...args.map((e) => this.evaluate(e)));
+
+			if (this.scope.isMacro(caller)) value = caller(...args);
+			else value = caller(...args.map((e) => this.evaluate(e)));
 		} else throw "Unknown Token Type";
 
 		this.tokens.pop();

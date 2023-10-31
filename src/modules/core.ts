@@ -1,5 +1,6 @@
 import { Module } from "../module";
 import { Scope } from "../scope";
+import { Token } from "../token";
 
 export const core: Module = {
 	variables: {
@@ -12,6 +13,8 @@ export const core: Module = {
 		"object?": (value: unknown) => typeof value === "object",
 		"null?": (value: unknown) => value === null,
 		"undefined?": (value: unknown) => value === undefined,
+
+		display: (value: unknown) => console.log(value),
 
 		// Logic
 		equals: (base: unknown, ...values: unknown[]) => {
@@ -131,6 +134,44 @@ export const core: Module = {
 				return this.withScope(scope, () => this.evaluateAll(statements));
 			});
 		},
+		macro: function (name, parameters, ...statements) {
+			if (name.type !== "identifier") {
+				this.tokens.push(name);
+				throw "Expected an identifier";
+			}
+			if (parameters.type !== "list") {
+				this.tokens.push(parameters);
+				throw "Expected a list of parameters";
+			}
+			const params = parameters.value.map((e) => {
+				if (e.type === "identifier") return e;
+				this.tokens.push(e);
+				throw "Expected an identifier";
+			});
+
+			this.scope.defineMacro(name.value, (...args) => {
+				if (args.length < params.length) throw "Not enough arguments provided";
+				else if (args.length > params.length) throw "Too many arguments provided";
+				const argMap = new Map<string, Token>();
+				for (let i = 0; i < params.length; i++) argMap.set(params[i].value, args[i]);
+
+				const inject = (token: Token) => {
+					if (token.type === "identifier") {
+						if (!argMap.has(token.value)) return token;
+						return argMap.get(token.value);
+					}
+					if (token.type === "list")
+						return {
+							...token,
+							value: token.value.map((e) => inject(e)),
+						};
+
+					return token;
+				};
+
+				return this.evaluateAll(statements.map((e) => inject(e)));
+			});
+		},
 		if: function (...statements) {
 			for (const statement of statements) {
 				if (statement.type !== "list") {
@@ -146,6 +187,17 @@ export const core: Module = {
 			let value: unknown;
 			while (this.evaluate(condition)) value = this.evaluateAll(statements);
 			return value;
+		},
+		loop: function (prefix, condition, suffix, ...statements) {
+			return this.withScope(new Scope({ parent: this.scope }), () => {
+				let value: unknown;
+				this.evaluate(prefix);
+				while (this.evaluate(condition)) {
+					value = this.evaluateAll(statements);
+					this.evaluate(suffix);
+				}
+				return value;
+			});
 		},
 	},
 };
