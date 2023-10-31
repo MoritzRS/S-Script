@@ -3,6 +3,7 @@ import { Interpreter } from "../src/interpreter";
 import { core } from "../src/modules/core";
 import { list } from "../src/modules/list";
 import { math } from "../src/modules/math";
+import { string } from "../src/modules/string";
 import { Parser } from "../src/parser";
 import { Token } from "../src/token";
 import { createExplorer } from "./explorer";
@@ -126,6 +127,7 @@ editor.addAction({
 			interpreter.loadModule(core);
 			interpreter.loadModule(math);
 			interpreter.loadModule(list);
+			interpreter.loadModule(string);
 			const result = interpreter.run(ast ?? []);
 			evaluationContainer.innerText = JSON.stringify(result);
 		} catch (e) {
