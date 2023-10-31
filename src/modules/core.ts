@@ -30,6 +30,11 @@ export const core: Module = {
 			for (const value of values) if (value) return true;
 			return false;
 		},
+
+		// Function calling
+		bind: (fn: Function, context: unknown) => fn.bind(context),
+		call: (fn: Function, ...args: unknown[]) => fn(...args),
+		apply: (fn: Function, args: unknown[]) => fn(...args),
 	},
 
 	macros: {
