@@ -1,9 +1,11 @@
+import { completion, config, language } from "../src/integrations/monaco";
+import { Interpreter } from "../src/interpreter";
+import { core } from "../src/modules/core";
+import { math } from "../src/modules/math";
+import { Parser } from "../src/parser";
+import { Token } from "../src/token";
 import "./worker";
 import * as monaco from "monaco-editor";
-import { Parser } from "../src/parser/parser";
-import { completion, config, language } from "../src/monaco/language";
-import { Interpreter } from "../src/interpreter/interpreter";
-import { Token } from "../src/token/tokens";
 
 const content = localStorage.getItem("monaco-content") ?? "";
 
@@ -69,10 +71,10 @@ editor.addAction({
 		} catch (e) {
 			monaco.editor.setModelMarkers(editor.getModel(), "custom", [
 				{
-					startLineNumber: e.line + 1,
-					endLineNumber: e.line + 1,
-					startColumn: e.column + 1,
-					endColumn: e.column + 2,
+					startLineNumber: e.line,
+					endLineNumber: e.line,
+					startColumn: e.column,
+					endColumn: e.column + 1,
 					message: e.message,
 					severity: monaco.MarkerSeverity.Error,
 				},
@@ -82,15 +84,17 @@ editor.addAction({
 
 		try {
 			const interpreter = new Interpreter();
+			interpreter.loadModule(core);
+			interpreter.loadModule(math);
 			const result = interpreter.run(ast ?? []);
 			evaluationContainer.innerText = JSON.stringify(result);
 		} catch (e) {
 			monaco.editor.setModelMarkers(editor.getModel(), "custom", [
 				{
-					startLineNumber: e.start[0] + 1,
-					endLineNumber: e.end[0] + 1,
-					startColumn: e.start[1] + 1,
-					endColumn: e.end[1] + 1,
+					startLineNumber: e.start[0],
+					endLineNumber: e.end[0],
+					startColumn: e.start[1],
+					endColumn: e.end[1],
 					message: e.message,
 					severity: monaco.MarkerSeverity.Error,
 				},

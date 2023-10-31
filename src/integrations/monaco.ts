@@ -1,16 +1,18 @@
-import * as monaco from "monaco-editor";
+import { languages } from "monaco-editor";
+import { core } from "../modules/core";
 
-const keywords = ["var", "const", "assign", "lambda", "if"];
+const keywords = Object.keys(core.macros);
 const constants = ["true", "false", "null", "undefined"];
+const operators = Object.keys(core.variables);
 
-export const completion: monaco.languages.CompletionItemProvider = {
+export const completion: languages.CompletionItemProvider = {
 	provideCompletionItems: (mode, position, context, token) => {
-		const suggestions: monaco.languages.CompletionItem[] = [
+		const suggestions: languages.CompletionItem[] = [
 			...keywords.map(
 				(e) =>
 					({
 						label: e,
-						kind: monaco.languages.CompletionItemKind.Keyword,
+						kind: languages.CompletionItemKind.Keyword,
 						insertText: e,
 					} as any),
 			),
@@ -18,7 +20,7 @@ export const completion: monaco.languages.CompletionItemProvider = {
 				(e) =>
 					({
 						label: e,
-						kind: monaco.languages.CompletionItemKind.Constant,
+						kind: languages.CompletionItemKind.Constant,
 						insertText: e,
 					} as any),
 			),
@@ -27,47 +29,40 @@ export const completion: monaco.languages.CompletionItemProvider = {
 	},
 };
 
-export const config: monaco.languages.LanguageConfiguration = {
-	comments: {
-		lineComment: ";",
-		// blockComment: ["#|", "|#"],
-	},
+export const config: languages.LanguageConfiguration = {
+	comments: { lineComment: ";" },
 
 	brackets: [
 		["(", ")"],
-		// ["{", "}"],
-		// ["[", "]"],
+		["[", "]"],
 	],
 
 	autoClosingPairs: [
-		// { open: "{", close: "}" },
-		// { open: "[", close: "]" },
 		{ open: "(", close: ")" },
+		{ open: "[", close: "]" },
 		{ open: '"', close: '"' },
 	],
 
 	surroundingPairs: [
-		// { open: "{", close: "}" },
-		// { open: "[", close: "]" },
 		{ open: "(", close: ")" },
+		{ open: "[", close: "]" },
 		{ open: '"', close: '"' },
 	],
 };
 
-export const language = <monaco.languages.IMonarchLanguage>{
+export const language = <languages.IMonarchLanguage>{
 	defaultToken: "",
 	ignoreCase: false,
-	// tokenPostfix: ".scheme",
+	tokenPostfix: ".scheme",
 
 	brackets: [
 		{ open: "(", close: ")", token: "delimiter.parenthesis" },
-		// { open: "{", close: "}", token: "delimiter.curly" },
-		// { open: "[", close: "]", token: "delimiter.square" },
+		{ open: "[", close: "]", token: "delimiter.square" },
 	],
 
 	keywords,
 	constants,
-	operators: [],
+	operators,
 
 	digits: /\d+/,
 	octaldigits: /[0-7]+/,
