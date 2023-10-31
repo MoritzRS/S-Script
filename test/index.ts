@@ -4,6 +4,7 @@ import { core } from "../src/modules/core";
 import { math } from "../src/modules/math";
 import { Parser } from "../src/parser";
 import { Token } from "../src/token";
+import { createExplorer } from "./explorer";
 import "./worker";
 import * as monaco from "monaco-editor";
 
@@ -27,6 +28,7 @@ const editor = monaco.editor.create(editorContainer, {
 });
 
 let timeout: ReturnType<typeof setTimeout>;
+let explorer: HTMLElement;
 editor.getModel().onDidChangeContent(() => {
 	clearTimeout(timeout);
 	timeout = setTimeout(() => {
@@ -37,7 +39,9 @@ editor.getModel().onDidChangeContent(() => {
 			const parser = new Parser();
 			ast = parser.parse(content);
 			monaco.editor.setModelMarkers(editor.getModel(), "custom", []);
-			astContainer.innerText = JSON.stringify(ast, null, 4);
+			explorer?.remove();
+			explorer = createExplorer(ast);
+			astContainer.appendChild(explorer);
 		} catch (e) {
 			monaco.editor.setModelMarkers(editor.getModel(), "custom", [
 				{
@@ -67,7 +71,9 @@ editor.addAction({
 			const parser = new Parser();
 			ast = parser.parse(content);
 			monaco.editor.setModelMarkers(editor.getModel(), "custom", []);
-			astContainer.innerText = JSON.stringify(ast, null, 4);
+			explorer?.remove();
+			explorer = createExplorer(ast);
+			astContainer.appendChild(explorer);
 		} catch (e) {
 			monaco.editor.setModelMarkers(editor.getModel(), "custom", [
 				{
@@ -102,4 +108,28 @@ editor.addAction({
 			evaluationContainer.innerText = JSON.stringify(e);
 		}
 	},
+});
+
+let decorations = editor.createDecorationsCollection([]);
+const highlightTokens: Token[] = [];
+
+function decorate() {
+	decorations.clear();
+	const token = highlightTokens.at(-1);
+	decorations.set([
+		{
+			range: new monaco.Range(token.start[0], token.start[1], token.end[0], token.end[1]),
+			options: { inlineClassName: "selected-token" },
+		},
+	]);
+}
+
+window.addEventListener("selectToken", ({ detail }: CustomEvent) => {
+	highlightTokens.push(detail);
+	decorate();
+});
+
+window.addEventListener("unselectToken", () => {
+	highlightTokens.pop();
+	decorate();
 });

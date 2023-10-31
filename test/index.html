@@ -4,52 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Test</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            display: flex;
-        }
-
-        #editor, #ast, #evaluation {
-            border: 1px solid black;
-        }
-
-        #editor {
-            flex: 1;
-        }
-
-        #results {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #ast {
-            flex: 3;
-            padding: 16px;
-            overflow-y: auto;
-            font-size: 16px;
-        }
-
-        #evaluation {
-            flex: 1;
-            padding: 16px;
-            overflow: auto;
-            font-size: 20px;
-        }
-
-        #evaluation::before {
-            content: "=> "
-        }
-    </style>
+    <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
     <div id="editor"></div>
