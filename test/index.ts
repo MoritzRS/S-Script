@@ -1,6 +1,7 @@
 import { completion, config, language } from "../src/integrations/monaco";
 import { Interpreter } from "../src/interpreter";
 import { core } from "../src/modules/core";
+import { list } from "../src/modules/list";
 import { math } from "../src/modules/math";
 import { Parser } from "../src/parser";
 import { Token } from "../src/token";
@@ -37,7 +38,7 @@ function decorate() {
 	decorations.set([
 		{
 			range: new monaco.Range(token.start[0], token.start[1], token.end[0], token.end[1]),
-			options: { inlineClassName: "selected-token" },
+			options: { className: "selected-token" },
 		},
 	]);
 }
@@ -124,6 +125,7 @@ editor.addAction({
 			const interpreter = new Interpreter();
 			interpreter.loadModule(core);
 			interpreter.loadModule(math);
+			interpreter.loadModule(list);
 			const result = interpreter.run(ast ?? []);
 			evaluationContainer.innerText = JSON.stringify(result);
 		} catch (e) {
