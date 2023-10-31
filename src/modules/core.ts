@@ -54,6 +54,8 @@ export const core: Module = {
 				throw "Expected an Identifier";
 			}
 
+			if (!statements.length) throw "Constants need to be initialized with a value";
+
 			const value = this.evaluateAll(statements);
 			this.scope.defineConstant(identifier.value, value);
 			return value;
@@ -71,19 +73,14 @@ export const core: Module = {
 					throw "Expected a declaration";
 				}
 
-				if (declaration.value.length !== 2) {
-					this.tokens.push(declaration);
-					throw "Too many items in declaration";
-				}
-
-				const [identifier, value] = declaration.value;
+				const [identifier, ...values] = declaration.value;
 
 				if (identifier.type !== "identifier") {
 					this.tokens.push(identifier);
 					throw "Expected an Identifier";
 				}
 
-				scope.defineVariable(identifier.value, this.evaluate(value));
+				scope.defineVariable(identifier.value, this.evaluateAll(values));
 			}
 			return this.withScope(scope, () => this.evaluateAll(statements));
 		},
