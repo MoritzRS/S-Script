@@ -5,7 +5,7 @@ import { Module } from "./module";
 export class Interpreter {
 	public scope: Scope = new Scope({});
 
-	public tokens: Token[] = [];
+	public callStack: Token[] = [];
 
 	public loadModule({ variables, constants, macros }: Module) {
 		const scope = new Scope({ parent: this.scope });
@@ -23,40 +23,57 @@ export class Interpreter {
 		return value;
 	}
 
-	public evaluate(token: Token) {
-		this.tokens.push(token);
-		let value: unknown;
-		if (token.type === "value") value = token.value;
-		else if (token.type === "identifier") value = this.scope.get(token.value as string);
+	public *evaluate(token: Token): IterableIterator<unknown> {
+		this.callStack.push(token);
+		if (token.type === "value") yield token.value;
+		else if (token.type === "identifier") yield this.scope.get(token.value as string);
 		else if (token.type === "list") {
 			const [fn, ...args] = token.value as Token[];
-			const caller = this.evaluate(fn);
+			let caller: Function;
+			for (const element of this.evaluate(fn)) {
+				caller = element as any;
+				yield element;
+			}
 			if (typeof caller !== "function") throw "Caller is not a function";
 
-			if (this.scope.isMacro(caller)) value = caller(...args);
-			else value = caller(...args.map((e) => this.evaluate(e)));
+			if (this.scope.isMacro(caller)) {
+				for (const element of caller(...args)) {
+					yield element;
+				}
+			} else {
+				const params = [];
+				for (const argument of args) {
+					let param: unknown;
+					for (const element of this.evaluate(argument)) {
+						param = element;
+						yield element;
+					}
+					params.push(param);
+				}
+				for (const element of caller(...params)) {
+					yield element;
+				}
+			}
 		} else throw "Unknown Token Type";
-
-		this.tokens.pop();
-		return value;
+		this.callStack.pop();
 	}
 
-	public evaluateAll(tokens: Token[]) {
-		let value: unknown;
-		for (const token of tokens) value = this.evaluate(token);
-		return value;
+	public *evaluateAll(tokens: Token[]) {
+		for (const token of tokens) {
+			for (const element of this.evaluate(token)) {
+				yield element;
+			}
+		}
 	}
 
 	public run(tokens: Token[]) {
-		try {
-			return this.evaluateAll(tokens);
-		} catch (e) {
-			throw {
-				start: this.tokens.at(-1).start,
-				end: this.tokens.at(-1).end,
-				raw: this.tokens.at(-1).raw,
-				message: e,
-			};
-		}
+		let value: unknown;
+		for (const element of this.evaluateAll(tokens)) value = element;
+		return value;
+	}
+
+	public debug(tokens: Token[]) {
+		const generator = this.evaluateAll(tokens);
+		return () => generator.next();
 	}
 }

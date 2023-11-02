@@ -1,9 +1,6 @@
 import { completion, config, language } from "../src/integrations/monaco";
 import { Interpreter } from "../src/interpreter";
-import { core } from "../src/modules/core";
-import { list } from "../src/modules/list";
-import { math } from "../src/modules/math";
-import { string } from "../src/modules/string";
+import { generator } from "../src/modules/generator";
 import { Parser } from "../src/parser";
 import { Token } from "../src/token";
 import { createExplorer } from "./explorer";
@@ -124,12 +121,90 @@ editor.addAction({
 
 		try {
 			const interpreter = new Interpreter();
-			interpreter.loadModule(core);
-			interpreter.loadModule(math);
-			interpreter.loadModule(list);
-			interpreter.loadModule(string);
+			interpreter.loadModule(generator);
 			const result = interpreter.run(ast ?? []);
 			evaluationContainer.innerText = JSON.stringify(result);
+		} catch (e) {
+			monaco.editor.setModelMarkers(editor.getModel(), "custom", [
+				{
+					startLineNumber: e.start[0],
+					endLineNumber: e.end[0],
+					startColumn: e.start[1],
+					endColumn: e.end[1],
+					message: e.message,
+					severity: monaco.MarkerSeverity.Error,
+				},
+			]);
+			evaluationContainer.innerText = JSON.stringify(e);
+		}
+	},
+});
+
+let button: HTMLButtonElement;
+editor.addAction({
+	id: "debug",
+	label: "Debug Script",
+	keybindings: [monaco.KeyMod.Shift | monaco.KeyCode.Enter],
+	run: function () {
+		clearTimeout(timeout);
+		clearDecoration();
+		button?.remove();
+		const content = editor.getValue();
+		localStorage.setItem("monaco-content", content);
+		let ast: Token[];
+		try {
+			const parser = new Parser();
+			ast = parser.parse(content);
+			monaco.editor.setModelMarkers(editor.getModel(), "custom", []);
+			explorer?.remove();
+			explorer = createExplorer(ast);
+			astContainer.appendChild(explorer);
+		} catch (e) {
+			monaco.editor.setModelMarkers(editor.getModel(), "custom", [
+				{
+					startLineNumber: e.line,
+					endLineNumber: e.line,
+					startColumn: e.column,
+					endColumn: e.column + 1,
+					message: e.message,
+					severity: monaco.MarkerSeverity.Error,
+				},
+			]);
+			astContainer.innerText = JSON.stringify(e);
+		}
+
+		try {
+			const interpreter = new Interpreter();
+			interpreter.loadModule(generator);
+			const debug = interpreter.debug(ast ?? []);
+			let step = 0;
+			button = document.createElement("button");
+			button.innerText = "Next";
+			button.onclick = () => {
+				const value = debug();
+				if (value.done) button.remove();
+				else {
+					evaluationContainer.innerText = JSON.stringify(
+						"[" + step++ + "]" + value.value,
+					);
+					monaco.editor.setModelMarkers(editor.getModel(), "custom", [
+						{
+							startLineNumber: interpreter.callStack.at(-1).start[0],
+							endLineNumber: interpreter.callStack.at(-1).end[0],
+							startColumn: interpreter.callStack.at(-1).start[1],
+							endColumn: interpreter.callStack.at(-1).end[1],
+							message: value.value.toString(),
+							severity: monaco.MarkerSeverity.Warning,
+						},
+					]);
+				}
+			};
+			button.style.position = "fixed";
+			button.style.top = "0";
+			button.style.right = "0";
+			button.style.padding = "8px 16px";
+			button.style.backgroundColor = "red";
+			document.body.appendChild(button);
 		} catch (e) {
 			monaco.editor.setModelMarkers(editor.getModel(), "custom", [
 				{

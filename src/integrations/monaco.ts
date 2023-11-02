@@ -1,9 +1,9 @@
 import { languages } from "monaco-editor";
-import { core } from "../modules/core";
+// import { core } from "../modules/core";
 
-const keywords = Object.keys(core.macros);
+const keywords = []; // Object.keys(core.macros);
 const constants = ["true", "false", "null", "undefined"];
-const operators = Object.keys(core.variables);
+const operators = []; // Object.keys(core.variables);
 
 export const completion: languages.CompletionItemProvider = {
 	provideCompletionItems: (mode, position, context, token) => {
